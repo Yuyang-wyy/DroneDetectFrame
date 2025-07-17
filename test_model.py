@@ -23,7 +23,7 @@ class EfficientNetSegmentation(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.Upsample(size=(224, 224), mode='bilinear', align_corners=False),
+            nn.Upsample(size=(512, 640), mode='bilinear', align_corners=False),
             nn.Conv2d(64, num_classes, kernel_size=1)
         )
     
@@ -131,12 +131,12 @@ if __name__ == '__main__':
     
     # 数据预处理
     image_transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((512, 640)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     mask_transform = transforms.Compose([
-        transforms.Resize((224, 224), interpolation=Image.NEAREST),
+        transforms.Resize((512, 640), interpolation=Image.NEAREST),
         transforms.ToTensor()
     ])
     
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     
     # 加载模型
     model = EfficientNetSegmentation(num_classes=2).to(device)
-    model.load_state_dict(torch.load('efficientnet_segmentation.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/model/efficientnet_segmentation_epoch{num_epochs}.pth.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)

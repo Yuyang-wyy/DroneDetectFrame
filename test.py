@@ -67,7 +67,7 @@ class EfficientNetSegmentation(nn.Module):
             nn.ReLU(),
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.Upsample(size=(640, 512), mode='bilinear', align_corners=False),
+            nn.Upsample(size=(512, 640), mode='bilinear', align_corners=False),
             nn.Conv2d(64, num_classes, kernel_size=1)
         )
     
@@ -78,13 +78,13 @@ class EfficientNetSegmentation(nn.Module):
 
 # 数据预处理
 image_transform = transforms.Compose([
-    transforms.Resize((640, 512)),
+    transforms.Resize((512, 640)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 mask_transform = transforms.Compose([
-    transforms.Resize((640, 512), interpolation=Image.NEAREST),
+    transforms.Resize((512, 640), interpolation=Image.NEAREST),
     transforms.ToTensor()
 ])
 
@@ -126,6 +126,7 @@ if __name__ == '__main__':
 
     # 训练循环
     def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=25):
+        checkpoint_dir = 'E:/Robotics/Work/cv/codes/model'
         for epoch in range(num_epochs):
             model.train()
             running_loss = 0.0
@@ -161,8 +162,19 @@ if __name__ == '__main__':
             val_loss = val_loss / len(val_loader.dataset)
             print(f'Validation Loss: {val_loss:.4f}')
 
+            # 每 10 个 epoch 保存模型
+            if (epoch + 1) % 10 == 0:
+                epoch_dir = os.path.join(checkpoint_dir, f'epoch_{epoch+1}')
+                os.makedirs(epoch_dir, exist_ok=True)
+                checkpoint_path = os.path.join(epoch_dir, f'efficientnet_segmentation_epoch{epoch+1}.pth')
+                torch.save(model.state_dict(), checkpoint_path)
+                print(f'Saved checkpoint to {checkpoint_path}')
+
+        final_epoch_dir = os.path.join(checkpoint_dir, f'epoch_{num_epochs}')
+        os.makedirs(final_epoch_dir, exist_ok=True)
+        final_checkpoint_path = os.path.join(final_epoch_dir, f'efficientnet_segmentation_epoch{num_epochs}.pth')
+        torch.save(model.state_dict(), final_checkpoint_path)
+        print(f'Saved final model to {final_checkpoint_path}')
+
     # 开始训练
-    train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=35)
-    
-    # 保存模型
-    torch.save(model.state_dict(), 'efficientnet_segmentation_new.pth')
+    train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=50)
