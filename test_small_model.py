@@ -7,6 +7,7 @@ from PIL import Image
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 # 定义与训练一致的 UltraLightSegmentation 模型
 class UltraLightSegmentation(nn.Module):
@@ -96,19 +97,40 @@ def test_model(model, test_loader, device, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     miou_scores = []
     
+    # 推理时间测量
+    inference_times = []
+    total_samples = 0
+    
     with torch.no_grad():
         for images, masks, filenames in test_loader:
             images = images.to(device)
-            outputs = model(images)
-            preds = torch.argmax(outputs, dim=1)  # 获取预测类别
+            total_samples += images.size(0)
+            
+            # 测量推理时间
+            if device.type == 'cuda':
+                torch.cuda.synchronize()
+                start_time = torch.cuda.Event(enable_timing=True)
+                end_time = torch.cuda.Event(enable_timing=True)
+                start_time.record()
+                outputs = model(images)
+                end_time.record()
+                torch.cuda.synchronize()
+                inference_time = start_time.elapsed_time(end_time) / 1000.0  # 转换为秒
+            else:
+                start_time = time.perf_counter()
+                outputs = model(images)
+                inference_time = time.perf_counter() - start_time
+            
+            inference_times.append(inference_time)
+            
+            preds = torch.argmax(outputs, dim=1)
             
             # 保存预测掩码
             for i, pred in enumerate(preds):
-                pred_np = pred.cpu().numpy().astype(np.uint8) * 255  # 转换为 0, 255 以便可视化
+                pred_np = pred.cpu().numpy().astype(np.uint8) * 255
                 pred_img = Image.fromarray(pred_np)
                 pred_img.save(os.path.join(output_dir, f"pred_{filenames[i]}.png"))
                 
-                # 计算 mIoU（如果有真实掩码）
                 if masks is not None:
                     miou = compute_miou(pred, masks[i].squeeze(0), num_classes=2)
                     miou_scores.append(miou)
@@ -117,6 +139,13 @@ def test_model(model, test_loader, device, output_dir):
     if miou_scores:
         mean_miou = np.mean(miou_scores)
         print(f"Mean mIoU: {mean_miou:.4f}")
+    
+    # 打印推理时间统计
+    avg_inference_time = np.mean(inference_times)
+    total_inference_time = np.sum(inference_times)
+    print(f"Average inference time per batch: {avg_inference_time:.4f} seconds")
+    print(f"Total inference time for {total_samples} samples: {total_inference_time:.4f} seconds")
+    print(f"Average inference time per sample: {total_inference_time / total_samples:.6f} seconds")
 
 # 主程序
 if __name__ == '__main__':
