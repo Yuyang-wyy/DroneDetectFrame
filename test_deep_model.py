@@ -229,7 +229,7 @@ if __name__ == '__main__':
     # 加载模型
     model = UltraLightSegmentation(num_classes=2).to(device)
     # 注意：需要使用 DeepLabv3+ 的权重
-    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel/epoch_30/deeplabv3plus_segmentation_epoch30.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel/Worked718/deeplabv3plus_segmentation_epoch30.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)
