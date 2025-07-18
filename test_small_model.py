@@ -16,12 +16,12 @@ class UltraLightSegmentation(nn.Module):
         self.backbone = mobilenet_v3_small(weights='IMAGENET1K_V1')
         in_features = 576  # MobileNetV3-Small 的输出通道数
         self.upsample = nn.Sequential(
-            nn.ConvTranspose2d(in_features, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
+            nn.ConvTranspose2d(in_features, 128, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(64, 32, kernel_size=4, stride=2, padding=1, output_padding=0),
+            nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
             nn.Upsample(size=(512, 640), mode='bilinear', align_corners=False),
-            nn.Conv2d(16, num_classes, kernel_size=1)
+            nn.Conv2d(64, num_classes, kernel_size=1)
         )
     
     def forward(self, x):
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     
     # 加载模型
     model = UltraLightSegmentation(num_classes=2).to(device)
-    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/smallmodel/efficientnet_segmentation_epoch{num_epochs}.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/smallmodel/epoch_400/efficientnet_segmentation_epoch400.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)

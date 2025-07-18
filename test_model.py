@@ -17,9 +17,9 @@ class EfficientNetSegmentation(nn.Module):
         self.upsample = nn.Sequential(
             nn.ConvTranspose2d(in_features, 512, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, output_padding=0),
-            nn.ReLU(),
-            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1, output_padding=0),
+            # nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, output_padding=0),
+            # nn.ReLU(),
+            nn.ConvTranspose2d(512, 128, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
@@ -151,7 +151,7 @@ if __name__ == '__main__':
     
     # 加载模型
     model = EfficientNetSegmentation(num_classes=2).to(device)
-    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/model/efficientnet_segmentation_epoch{num_epochs}.pth.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/model/epoch_50/efficientnet_segmentation_epoch50.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)

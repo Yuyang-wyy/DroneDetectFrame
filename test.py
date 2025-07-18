@@ -61,9 +61,9 @@ class EfficientNetSegmentation(nn.Module):
         self.upsample = nn.Sequential(
             nn.ConvTranspose2d(in_features, 512, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
-            nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, output_padding=0),
-            nn.ReLU(),
-            nn.ConvTranspose2d(256, 128, kernel_size=4, stride=2, padding=1, output_padding=0),
+            # nn.ConvTranspose2d(512, 256, kernel_size=4, stride=2, padding=1, output_padding=0),
+            # nn.ReLU(),
+            nn.ConvTranspose2d(512, 128, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
             nn.ConvTranspose2d(128, 64, kernel_size=4, stride=2, padding=1, output_padding=0),
             nn.ReLU(),
@@ -116,7 +116,7 @@ if __name__ == '__main__':
     # 初始化模型、损失函数和优化器
     model = EfficientNetSegmentation(num_classes=2).to(device)
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.001)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
     scaler = GradScaler()
 
        # 验证参数量
@@ -177,4 +177,4 @@ if __name__ == '__main__':
         print(f'Saved final model to {final_checkpoint_path}')
 
     # 开始训练
-    train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=50)
+    train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs=500)
