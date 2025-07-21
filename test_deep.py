@@ -12,7 +12,7 @@ from torch.amp import GradScaler, autocast
 
 # 定义 DeepLabv3+ 的 ASPP 模块
 class ASPP(nn.Module):
-    def __init__(self, in_channels, out_channels=128, atrous_rates=[6, 12, 18]):
+    def __init__(self, in_channels, out_channels=64, atrous_rates=[6, 12, 18]):
         super(ASPP, self).__init__()
         self.aspp1 = nn.Conv2d(in_channels, out_channels, kernel_size=1, bias=False)
         self.aspp2 = nn.Conv2d(in_channels, out_channels, kernel_size=3, padding=atrous_rates[0], dilation=atrous_rates[0], bias=False)
@@ -41,20 +41,20 @@ class ASPP(nn.Module):
 
 # 定义 DeepLabv3+ 解码器
 class DeepLabDecoder(nn.Module):
-    def __init__(self, low_level_channels, num_classes, aspp_out_channels=128):
+    def __init__(self, low_level_channels, num_classes, aspp_out_channels=64):
         super(DeepLabDecoder, self).__init__()
         self.low_level_conv = nn.Conv2d(low_level_channels, 48, kernel_size=1, bias=False)
         self.low_level_bn = nn.BatchNorm2d(48)
         self.low_level_relu = nn.ReLU()
         
         self.decoder_conv = nn.Sequential(
-            nn.Conv2d(aspp_out_channels + 48, 128, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(aspp_out_channels + 48, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(128, num_classes, kernel_size=1)
+            nn.Conv2d(64, num_classes, kernel_size=1)
         )
 
     def forward(self, x, low_level_feat):
@@ -72,7 +72,7 @@ class UltraLightSegmentation(nn.Module):
         super(UltraLightSegmentation, self).__init__()
         print("Initializing UltraLightSegmentation model with MobileNetV3-Small and DeepLabv3+ Decoder")
         self.backbone = mobilenet_v3_small(weights='IMAGENET1K_V1')
-        self.aspp = ASPP(in_channels=576, out_channels=128)  # MobileNetV3-Small 输出通道数为 576
+        self.aspp = ASPP(in_channels=576, out_channels=64)  # MobileNetV3-Small 输出通道数为 576，out_channels要和aspp_out_channels=64一致
         self.decoder = DeepLabDecoder(low_level_channels=16, num_classes=num_classes)  # 低层特征来自 conv1 (16 channels)
 
     def forward(self, x):
@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
     # 训练循环（保持不变）
     def train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs):
-        checkpoint_dir = 'E:/Robotics/Work/cv/codes/deepmodel'
+        checkpoint_dir = 'E:/Robotics/Work/cv/codes/deepmodel_smaller'
 
         for epoch in range(num_epochs):
             model.train()

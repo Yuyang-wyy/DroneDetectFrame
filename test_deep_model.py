@@ -41,19 +41,19 @@ class ASPP(nn.Module):
 
 # 定义 DeepLabv3+ 解码器
 class DeepLabDecoder(nn.Module):
-    def __init__(self, low_level_channels, num_classes, aspp_out_channels=128):
+    def __init__(self, low_level_channels, num_classes, aspp_out_channels=64):
         super(DeepLabDecoder, self).__init__()
         self.low_level_conv = nn.Conv2d(low_level_channels, 48, kernel_size=1, bias=False)
         self.low_level_bn = nn.BatchNorm2d(48)
         self.low_level_relu = nn.ReLU()
         self.decoder_conv = nn.Sequential(
-            nn.Conv2d(aspp_out_channels + 48, 128, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(aspp_out_channels + 48, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(128, 128, kernel_size=3, padding=1, bias=False),
-            nn.BatchNorm2d(128),
+            nn.Conv2d(64, 64, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(64),
             nn.ReLU(),
-            nn.Conv2d(128, num_classes, kernel_size=1)
+            nn.Conv2d(64, num_classes, kernel_size=1)
         )
 
     def forward(self, x, low_level_feat):
@@ -71,7 +71,7 @@ class UltraLightSegmentation(nn.Module):
         super(UltraLightSegmentation, self).__init__()
         print("Initializing UltraLightSegmentation model with MobileNetV3-Small and DeepLabv3+ Decoder")
         self.backbone = mobilenet_v3_small(weights='IMAGENET1K_V1')
-        self.aspp = ASPP(in_channels=576, out_channels=128)  # MobileNetV3-Small 输出通道数为 576
+        self.aspp = ASPP(in_channels=576, out_channels=64)  # MobileNetV3-Small 输出通道数为 576
         self.decoder = DeepLabDecoder(low_level_channels=16, num_classes=num_classes)  # 低层特征来自 conv1
 
     def forward(self, x):
@@ -220,7 +220,7 @@ if __name__ == '__main__':
     # 测试数据集路径
     test_image_dir = 'E:/Robotics/Work/cv/dataset/test/images'
     test_mask_dir = 'E:/Robotics/Work/cv/dataset/test/masks'
-    output_dir = 'E:/Robotics/Work/cv/deep_results'
+    output_dir = 'E:/Robotics/Work/cv/deep_smaller_results'
     
     # 加载测试数据集
     test_dataset = TestDataset(test_image_dir, test_mask_dir, transform=image_transform, mask_transform=mask_transform)
@@ -229,7 +229,7 @@ if __name__ == '__main__':
     # 加载模型
     model = UltraLightSegmentation(num_classes=2).to(device)
     # 注意：需要使用 DeepLabv3+ 的权重
-    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel/epoch_40/deeplabv3plus_segmentation_epoch40.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel_smaller/epoch_30/deeplabv3plus_segmentation_epoch30.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)

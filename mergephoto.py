@@ -18,8 +18,8 @@ if __name__ == '__main__':
     # 文件夹路径
     image_dir = 'E:/Robotics/Work/cv/dataset/test/images'
     mask_dir = 'E:/Robotics/Work/cv/dataset/test/masks'
-    pred_dir = 'E:/Robotics/Work/cv/deep_results'
-    output_dir = 'E:/Robotics/Work/cv/codes/compare_results'
+    pred_dir = 'E:/Robotics/Work/cv/deep_smaller_results'
+    output_dir = 'E:/Robotics/Work/cv/codes/compare_results_smaller'
     num_samples = 10  # 随机抽取的样本数量
 
     # 获取文件名
