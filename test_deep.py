@@ -9,6 +9,7 @@ from PIL import Image
 import os
 import numpy as np
 from torch.amp import GradScaler, autocast
+import segmentation_models_pytorch as smp
 
 # 定义 DeepLabv3+ 的 ASPP 模块
 class ASPP(nn.Module):
@@ -164,8 +165,8 @@ if __name__ == '__main__':
     
     # 初始化模型、损失函数和优化器
     model = UltraLightSegmentation(num_classes=2).to(device)
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(model.parameters(), lr=0.0003)
+    criterion = smp.losses.FocalLoss(mode='binary', alpha=0.8, gamma=2.0)
+    optimizer = optim.Adam(model.parameters(), lr=0.0005)
     scaler = GradScaler()
 
     # 验证参数量

@@ -220,7 +220,7 @@ if __name__ == '__main__':
     # 测试数据集路径
     test_image_dir = 'E:/Robotics/Work/cv/dataset/test/images'
     test_mask_dir = 'E:/Robotics/Work/cv/dataset/test/masks'
-    output_dir = 'E:/Robotics/Work/cv/deep_smaller_results'
+    output_dir = 'E:/Robotics/Work/cv/deep_smaller_smaller_results'
     
     # 加载测试数据集
     test_dataset = TestDataset(test_image_dir, test_mask_dir, transform=image_transform, mask_transform=mask_transform)
@@ -229,7 +229,7 @@ if __name__ == '__main__':
     # 加载模型
     model = UltraLightSegmentation(num_classes=2).to(device)
     # 注意：需要使用 DeepLabv3+ 的权重
-    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel_smaller/epoch_30/deeplabv3plus_segmentation_epoch30.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel_smaller/epoch_40/deeplabv3plus_segmentation_epoch40.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)
