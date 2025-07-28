@@ -208,19 +208,19 @@ if __name__ == '__main__':
     
     # 数据预处理（与训练一致）
     image_transform = transforms.Compose([
-        transforms.Resize((512, 640)),
+        transforms.Resize((256, 320)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     mask_transform = transforms.Compose([
-        transforms.Resize((512, 640), interpolation=Image.NEAREST),
+        transforms.Resize((256, 320), interpolation=Image.NEAREST),
         transforms.ToTensor()
     ])
     
     # 测试数据集路径
     test_image_dir = 'E:/Robotics/Work/cv/dataset/test/images'
     test_mask_dir = 'E:/Robotics/Work/cv/dataset/test/masks'
-    output_dir = 'E:/Robotics/Work/cv/deep_smaller_smaller_results'
+    output_dir = 'E:/Robotics/Work/cv/deep_nopretrain_results'
     
     # 加载测试数据集
     test_dataset = TestDataset(test_image_dir, test_mask_dir, transform=image_transform, mask_transform=mask_transform)
@@ -229,7 +229,7 @@ if __name__ == '__main__':
     # 加载模型
     model = UltraLightSegmentation(num_classes=2).to(device)
     # 注意：需要使用 DeepLabv3+ 的权重
-    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel_smaller/epoch_40/deeplabv3plus_segmentation_epoch40.pth', map_location=device))
+    model.load_state_dict(torch.load('E:/Robotics/Work/cv/codes/deepmodel_smaller/epoch_100/deeplabv3plus_segmentation_epoch100.pth', map_location=device))
     
     # 测试模型
     test_model(model, test_loader, device, output_dir)

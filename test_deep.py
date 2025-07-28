@@ -128,13 +128,13 @@ class SegmentationDataset(Dataset):
 
 # 数据预处理（保持不变）
 image_transform = transforms.Compose([
-    transforms.Resize((512, 640)),
+    transforms.Resize((256, 320)),
     transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
 mask_transform = transforms.Compose([
-    transforms.Resize((512, 640), interpolation=Image.NEAREST),
+    transforms.Resize((256, 320), interpolation=Image.NEAREST),
     transforms.ToTensor()
 ])
 
@@ -149,8 +149,8 @@ train_dataset = SegmentationDataset(train_image_dir, train_mask_dir, transform=i
 val_dataset = SegmentationDataset(val_image_dir, val_mask_dir, transform=image_transform, mask_transform=mask_transform)
 
 # 设置 DataLoader（保持不变）
-train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True, num_workers=8, pin_memory=True)
-val_loader = DataLoader(val_dataset, batch_size=16, shuffle=False, num_workers=8, pin_memory=True)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=8, pin_memory=True)
+val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=8, pin_memory=True)
 
 # 主程序
 if __name__ == '__main__':
@@ -165,7 +165,7 @@ if __name__ == '__main__':
     
     # 初始化模型、损失函数和优化器
     model = UltraLightSegmentation(num_classes=2).to(device)
-    criterion = smp.losses.FocalLoss(mode='binary', alpha=0.8, gamma=2.0)
+    criterion = smp.losses.FocalLoss(mode='multiclass', alpha=0.8, gamma=2.0)
     optimizer = optim.Adam(model.parameters(), lr=0.0005)
     scaler = GradScaler()
 

@@ -95,7 +95,7 @@ if __name__ == '__main__':
 
     # 创建虚拟输入
     batch_size = 1
-    input_tensor = torch.randn(batch_size, 3, 512, 640).to(device)
+    input_tensor = torch.randn(batch_size, 3, 256, 320).to(device)
 
     # ONNX 导出路径
     onnx_path = 'E:/Robotics/Work/cv/ultralight_segmentation.onnx'
